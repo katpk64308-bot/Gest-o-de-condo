@@ -1,0 +1,179 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 100vh;
+}
+
+body:has(.painel) {
+    align-items: flex-start;
+    height: auto;
+    min-height: 100vh;
+    padding: 30px 15px;
+}
+
+.container {
+    background: white;
+
+    width: 350px;
+
+    padding: 30px;
+
+    border-radius: 10px;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+
+    padding: 10px;
+
+    margin-bottom: 15px;
+
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+
+    padding: 10px;
+
+    border: none;
+    border-radius: 5px;
+
+    background: #2563eb;
+    color: white;
+
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.trocar {
+    margin-top: 20px;
+
+    text-align: center;
+}
+
+.link {
+    background: none;
+    color: #2563eb;
+
+    width: auto;
+
+    padding: 0;
+}
+
+.mensagem {
+    min-height: 18px;
+    margin-top: 12px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.mensagem.erro {
+    color: #dc2626;
+}
+
+.mensagem.sucesso {
+    color: #15803d;
+}
+
+.painel {
+    background: white;
+    width: min(760px, 100%);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.cabecalho h1 {
+    margin-bottom: 0;
+}
+
+.secundario {
+    width: auto;
+    background: #64748b;
+}
+
+.formulario-usuario {
+    margin: 25px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.formulario-usuario span,
+.usuario span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.oculto {
+    display: none;
+}
+
+.usuario {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.usuario div:first-child {
+    display: grid;
+    gap: 5px;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+}
+
+.acoes button {
+    width: auto;
+    padding: 7px 12px;
+}
+
+.acoes .perigo {
+    background: #dc2626;
+}
+
+@media (max-width: 520px) {
+    .usuario {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
