@@ -6,7 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: #f2f2f2;
+    background: linear-gradient(20deg, #ffffff, #aca039, #186a70);
 
     display: flex;
     justify-content: center;
@@ -23,7 +23,7 @@ body:has(.painel) {
 }
 
 .container {
-    background: white;
+    background: rgb(243, 242, 242);
 
     width: 350px;
 
