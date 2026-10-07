@@ -2,7 +2,6 @@
     visaogeral: `
         <section class="painel">
             <header class="cabecalho">
-                <h1>Gestão do Condomínio</h1>
                 <button class="secundario" onclick="trocarABA('pagamentos')">Pagamentos</button>
             </header>
             ${menu()}

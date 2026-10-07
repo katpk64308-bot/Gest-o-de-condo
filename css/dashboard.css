@@ -1,0 +1,14 @@
+﻿*{
+    border: 0;
+    gap: 0;
+    list-style: none;
+}
+body{
+     background: linear-gradient(20deg, #000000, #38373d, #4f4b61);
+       font-family: Arial, sans-serif;
+       height: 100vh;
+}
+.painel{
+text-align: top;
+
+}
