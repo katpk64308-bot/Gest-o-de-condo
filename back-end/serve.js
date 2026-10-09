@@ -1,17 +1,18 @@
 ﻿const express = require("express");
 const mysql = require("mysql2");
+const path = require("path");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("../"));
+app.use(express.static(path.join(__dirname, "..")));
 
 const banco = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "sistema_login"
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD ?? "root",
+  database: process.env.DB_NAME || "sistema"
 });
 
 banco.connect((erro) => {
@@ -70,7 +71,7 @@ const recursos = {
     tabela: "blocos",
     campos: ["descricao", "quantidade"],
     obrigatorios: ["descricao", "quantidade"],
-    consulta: "SELECT id, descricao, quantidade FROM blocks ORDER BY descricao"
+    consulta: "SELECT id, descricao, quantidade FROM blocos ORDER BY descricao"
   },
   apartamentos: {
     tabela: "apartamentos",
@@ -118,6 +119,10 @@ function obterRecurso(nome, res) {
 
 function tratarErroBanco(erro, res) {
   console.log("Erro na operação do banco:", erro);
+  if (erro.code === "ECONNREFUSED" || erro.code === "PROTOCOL_CONNECTION_LOST") return res.status(503).json({ erro: "MySQL indisponível. Inicie o serviço do MySQL e tente novamente." });
+  if (erro.code === "ER_ACCESS_DENIED_ERROR") return res.status(503).json({ erro: "Acesso ao MySQL negado. Confira DB_USER e DB_PASSWORD." });
+  if (erro.code === "ER_BAD_DB_ERROR") return res.status(503).json({ erro: "Banco sistema não encontrado. Execute back-end/banco.sql no MySQL." });
+  if (erro.code === "ER_NO_SUCH_TABLE") return res.status(503).json({ erro: `Tabela ausente no banco: ${erro.sqlMessage || erro.message}` });
   if (erro.code === "ER_DUP_ENTRY") return res.status(409).json({ erro: "Este registro já está cadastrado." });
   if (erro.code === "ER_NO_REFERENCED_ROW_2") return res.status(400).json({ erro: "Selecione um registro relacionado que exista." });
   if (erro.code === "ER_ROW_IS_REFERENCED_2") return res.status(409).json({ erro: "Não é possível excluir: existem registros vinculados." });
@@ -202,3 +207,6 @@ app.delete("/api/:recurso/:id", (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor rodando em http://localhost:3000");
 });
+
+
+

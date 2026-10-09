@@ -124,8 +124,8 @@ function menu() {
       </a>
       <nav class="acoes" aria-label="Menu do condomínio">
         ${itens.map(([id, icone, titulo]) => `
-          <button class="\${paginaAtual === id ? "ativo" : ""}" aria-current="paginaAtual === id ? "page" : "false"" onclick="trocarABA('{id}')">
-            <span aria-hidden="true">icone</span>{titulo}
+          <button class="${paginaAtual === id ? "ativo" : ""}" aria-current="${paginaAtual === id ? "page" : "false"}" onclick="trocarABA('${id}')">
+            <span aria-hidden="true">${icone}</span>${titulo}
           </button>
         `).join("")}
       </nav>
@@ -219,7 +219,7 @@ function campoHTML(campo) {
       const texto = campo.relacao === "referencias"
         ? `${item.mes_ano} — R$ ${item.valor} (vence ${item.vencimento})`
         : campo.relacao === "apartamento"
-          ? `${item.numero}${item.bloco ? ` — Bloco \${item.bloco}` : ""}`
+          ? `${item.numero}${item.bloco ? ` — Bloco ${item.bloco}` : ""}`
           : campo.relacao === "blocos" || campo.relacao === "tiposManutencao"
             ? item.descricao
             : item[campo.exibicao];
@@ -244,7 +244,7 @@ function renderizarModulo(chave) {
       <form class="formulario-usuario" id="form_${chave}" onsubmit="salvarRegistro('${chave}', event)">
         <h2>Novo ${modulo.singular}</h2>
         ${campos.map(campo => `
-          <label for="campo_\${campo.id}">\({campo.label}</label>\){campoHTML(campo)}
+          <label for="campo_${campo.id}">${campo.label}</label>${campoHTML(campo)}
         `).join("")}
         <button type="submit" id="botaoSalvar">Salvar</button>
       </form>
@@ -253,4 +253,54 @@ function renderizarModulo(chave) {
       </div>
     </section>
   `;
+  listarRegistros(chave);
 }
+async function listarRegistros(chave) {
+  const lista = document.getElementById(`lista_${chave}`);
+  if (!lista) return;
+  try {
+    const itens = registros[chave] || [];
+    const modulo = modulos[chave];
+    lista.innerHTML = itens.length ? itens.map(item => `<article class="usuario"><div>${modulo.campos.map(campo => {
+      let valor = item[campo.exibicao || campo.id];
+      if (campo.relacao === "apartamento" && item.unidade) valor = `${item.unidade}${item.bloco ? ` — Bloco ${item.bloco}` : ""}`;
+      if (campo.relacao === "referencias" && item.referencia) valor = item.referencia;
+      if (campo.relacao === "tiposManutencao" && item.tipo) valor = item.tipo;
+      return `<div><strong>${escaparHTML(campo.label)}:</strong> ${escaparHTML(valor || "—")}</div>`;
+    }).join("")}</div><div class="acoes"><button class="perigo" type="button" onclick="excluirRegistro('${chave}', ${Number(item.id)})">Excluir</button></div></article>`).join("") : "<p>Nenhum registro cadastrado.</p>";
+  } catch (erro) {
+    lista.innerHTML = `<p class="mensagem erro">${escaparHTML(erro.message)}</p>`;
+  }
+}
+
+async function salvarRegistro(chave, evento) {
+  evento.preventDefault();
+  const formulario = evento.currentTarget;
+  const botao = formulario.querySelector("[type=submit]");
+  botao.disabled = true;
+  try {
+    const dados = Object.fromEntries(new FormData(formulario).entries());
+    await requisicao(`/api/${modulos[chave].api}`, { method: "POST", body: JSON.stringify(dados) });
+    formulario.reset();
+    registros[chave] = await requisicao(`/api/${modulos[chave].api}`);
+    listarRegistros(chave);
+  } catch (erro) {
+    alert(erro.message);
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+async function excluirRegistro(chave, id) {
+  try {
+    await requisicao(`/api/${modulos[chave].api}/${id}`, { method: "DELETE" });
+    registros[chave] = await requisicao(`/api/${modulos[chave].api}`);
+    listarRegistros(chave);
+  } catch (erro) {
+    alert(erro.message);
+  }
+}
+trocarABA('visaogeral');
+
+
+
