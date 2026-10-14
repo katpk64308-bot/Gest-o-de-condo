@@ -6,7 +6,8 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(20deg, #ffffff, #aca039, #186a70);
+    min-height: 100vh;
+  background: linear-gradient(100deg, rgba(2,19,45,.82), rgba(3,22,50,.38)), url('../imagem.avif') center / cover fixed;
 
     display: flex;
     justify-content: center;
@@ -23,7 +24,7 @@ body:has(.painel) {
 }
 
 .container {
-    background: rgb(243, 242, 242);
+    background: rgb(228, 226, 226);
 
     width: 350px;
 

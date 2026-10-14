@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
 }
 
@@ -283,6 +283,15 @@ input::placeholder {
   padding: 14px;
   background: linear-gradient(100deg,#04bde9,#1262ff);
   cursor: pointer;
+}
+
+.botoes-formulario {
+  display: flex;
+  gap: 10px;
+}
+
+.botoes-formulario button {
+  flex: 1;
 }
 
 .formulario-usuario #botaoCancelar {

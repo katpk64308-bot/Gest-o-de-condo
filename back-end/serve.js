@@ -1,4 +1,4 @@
-﻿const express = require("express");
+const express = require("express");
 const mysql = require("mysql2");
 const path = require("path");
 
@@ -179,7 +179,7 @@ app.put("/api/:recurso/:id", (req, res) => {
   const dados = obterDados(req, recurso);
   if (!validarDados(dados, recurso, res)) return;
   const campos = Object.keys(dados);
-  const sql = `UPDATE ${recurso.tabela} SET ${campos.map(campo => `\${campo} = ?`).join(", ")} WHERE id = ?`;
+  const sql = `UPDATE ${recurso.tabela} SET ${campos.map(campo => `${campo} = ?`).join(", ")} WHERE id = ?`;
 
   banco.query(sql, [...campos.map(campo => dados[campo]), req.params.id], (erro, resultado) => {
     if (erro) return tratarErroBanco(erro, res);
@@ -187,7 +187,7 @@ app.put("/api/:recurso/:id", (req, res) => {
       return banco.query(`SELECT id FROM ${recurso.tabela} WHERE id = ?`, [req.params.id], (erroBusca, linhas) => {
         if (erroBusca) return tratarErroBanco(erroBusca, res);
         if (!linhas.length) return res.status(404).json({ erro: "Registro não encontrado." });
-        res.json({ mensagem: "Dados updated com sucesso." });
+        res.json({ mensagem: "Dados atualizados com sucesso." });
       });
     }
     res.json({ mensagem: "Dados atualizados com sucesso." });

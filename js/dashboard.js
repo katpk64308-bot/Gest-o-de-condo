@@ -1,4 +1,4 @@
-﻿const pagina = { visaogeral: true };
+const pagina = { visaogeral: true };
 
 const modulos = {
   blocos: {
@@ -241,12 +241,12 @@ function renderizarModulo(chave) {
         <h1>${modulo.titulo}</h1>
         <button class="secundario" onclick="trocarABA('visaogeral')">Voltar</button>
       </header>
-      <form class="formulario-usuario" id="form_${chave}" onsubmit="salvarRegistro('${chave}', event)">
-        <h2>Novo ${modulo.singular}</h2>
+      <form class="formulario-usuario" id="form_${chave}" data-editando="" onsubmit="salvarRegistro('${chave}', event)">
+        <h2 id="tituloFormulario">Novo ${modulo.singular}</h2>
         ${campos.map(campo => `
           <label for="campo_${campo.id}">${campo.label}</label>${campoHTML(campo)}
         `).join("")}
-        <button type="submit" id="botaoSalvar">Salvar</button>
+        <div class="botoes-formulario"><button type="submit" id="botaoSalvar">Salvar</button><button type="button" id="botaoCancelar" class="secundario oculto" onclick="cancelarEdicao('${chave}')">Cancelar edição</button></div>
       </form>
       <div id="lista_${chave}">
         <p>Carregando listagem...</p>
@@ -267,7 +267,7 @@ async function listarRegistros(chave) {
       if (campo.relacao === "referencias" && item.referencia) valor = item.referencia;
       if (campo.relacao === "tiposManutencao" && item.tipo) valor = item.tipo;
       return `<div><strong>${escaparHTML(campo.label)}:</strong> ${escaparHTML(valor || "—")}</div>`;
-    }).join("")}</div><div class="acoes"><button class="perigo" type="button" onclick="excluirRegistro('${chave}', ${Number(item.id)})">Excluir</button></div></article>`).join("") : "<p>Nenhum registro cadastrado.</p>";
+    }).join("")}</div><div class="acoes"><button type="button" onclick="editarRegistro('${chave}', ${Number(item.id)})">Editar</button><button class="perigo" type="button" onclick="excluirRegistro('${chave}', ${Number(item.id)})">Excluir</button></div></article>`).join("") : "<p>Nenhum registro cadastrado.</p>";
   } catch (erro) {
     lista.innerHTML = `<p class="mensagem erro">${escaparHTML(erro.message)}</p>`;
   }
@@ -280,8 +280,10 @@ async function salvarRegistro(chave, evento) {
   botao.disabled = true;
   try {
     const dados = Object.fromEntries(new FormData(formulario).entries());
-    await requisicao(`/api/${modulos[chave].api}`, { method: "POST", body: JSON.stringify(dados) });
-    formulario.reset();
+    const id = formulario.dataset.editando;
+    const url = `/api/${modulos[chave].api}${id ? `/${id}` : ""}`;
+    await requisicao(url, { method: id ? "PUT" : "POST", body: JSON.stringify(dados) });
+    cancelarEdicao(chave);
     registros[chave] = await requisicao(`/api/${modulos[chave].api}`);
     listarRegistros(chave);
   } catch (erro) {
@@ -291,6 +293,30 @@ async function salvarRegistro(chave, evento) {
   }
 }
 
+function editarRegistro(chave, id) {
+  const item = (registros[chave] || []).find(registro => Number(registro.id) === Number(id));
+  const formulario = document.getElementById(`form_${chave}`);
+  if (!item || !formulario) return;
+  modulos[chave].campos.filter(campo => !campo.somenteLeitura).forEach(campo => {
+    const entrada = formulario.elements.namedItem(campo.id);
+    if (entrada) entrada.value = item[campo.id] ?? "";
+  });
+  formulario.dataset.editando = String(id);
+  formulario.querySelector("#tituloFormulario").textContent = `Editar ${modulos[chave].singular}`;
+  formulario.querySelector("#botaoSalvar").textContent = "Salvar alterações";
+  formulario.querySelector("#botaoCancelar").classList.remove("oculto");
+  formulario.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function cancelarEdicao(chave) {
+  const formulario = document.getElementById(`form_${chave}`);
+  if (!formulario) return;
+  formulario.reset();
+  delete formulario.dataset.editando;
+  formulario.querySelector("#tituloFormulario").textContent = `Novo ${modulos[chave].singular}`;
+  formulario.querySelector("#botaoSalvar").textContent = "Salvar";
+  formulario.querySelector("#botaoCancelar").classList.add("oculto");
+}
 async function excluirRegistro(chave, id) {
   try {
     await requisicao(`/api/${modulos[chave].api}/${id}`, { method: "DELETE" });
@@ -301,6 +327,3 @@ async function excluirRegistro(chave, id) {
   }
 }
 trocarABA('visaogeral');
-
-
-
