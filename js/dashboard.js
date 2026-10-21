@@ -7,7 +7,7 @@ const modulos = {
     api: "blocos",
     campos: [
       { id: "descricao", label: "Descrição", obrigatorio: true },
-      { id: "quantidade", label: "Quantidade de apartamentos", tipo: "number", obrigatorio: true }
+      { id: "quantidade", label: "Quantidade de apartamentos", somenteLeitura: true }
     ]
   },
   apartamento: {

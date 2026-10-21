@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 CREATE TABLE IF NOT EXISTS blocos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     descricao VARCHAR(100) NOT NULL UNIQUE,
-    quantidade INT NOT NULL
+    quantidade INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS apartamentos (
@@ -68,3 +68,54 @@ CREATE TABLE IF NOT EXISTS comunicados (
     titulo VARCHAR(150) NOT NULL,
     mensagem TEXT NOT NULL
 );
+
+ALTER TABLE blocos
+MODIFY quantidade INT NOT NULL DEFAULT 0;
+
+UPDATE blocos b
+SET quantidade = (
+    SELECT COUNT(*)
+    FROM apartamentos a
+    WHERE a.bloco_id = b.id
+);
+
+DROP TRIGGER IF EXISTS trg_apartamentos_ai_atualizar_quantidade_bloco;
+DROP TRIGGER IF EXISTS trg_apartamentos_ad_atualizar_quantidade_bloco;
+DROP TRIGGER IF EXISTS trg_apartamentos_au_atualizar_quantidade_bloco;
+
+DELIMITER $$
+
+CREATE TRIGGER trg_apartamentos_ai_atualizar_quantidade_bloco
+AFTER INSERT ON apartamentos
+FOR EACH ROW
+BEGIN
+    UPDATE blocos
+    SET quantidade = quantidade + 1
+    WHERE id = NEW.bloco_id;
+END$$
+
+CREATE TRIGGER trg_apartamentos_ad_atualizar_quantidade_bloco
+AFTER DELETE ON apartamentos
+FOR EACH ROW
+BEGIN
+    UPDATE blocos
+    SET quantidade = quantidade - 1
+    WHERE id = OLD.bloco_id;
+END$$
+
+CREATE TRIGGER trg_apartamentos_au_atualizar_quantidade_bloco
+AFTER UPDATE ON apartamentos
+FOR EACH ROW
+BEGIN
+    IF OLD.bloco_id <> NEW.bloco_id THEN
+        UPDATE blocos
+        SET quantidade = quantidade - 1
+        WHERE id = OLD.bloco_id;
+
+        UPDATE blocos
+        SET quantidade = quantidade + 1
+        WHERE id = NEW.bloco_id;
+    END IF;
+END$$
+
+DELIMITER ;

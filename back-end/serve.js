@@ -9,10 +9,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "..")));
 
 const banco = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD ?? "root",
-  database: process.env.DB_NAME || "sistema"
+  host:"localhost",
+  user:"root",
+  password:"root",
+  database:"sistema"
 });
 
 banco.connect((erro) => {
@@ -69,8 +69,8 @@ const recursos = {
   },
   blocos: {
     tabela: "blocos",
-    campos: ["descricao", "quantidade"],
-    obrigatorios: ["descricao", "quantidade"],
+    campos: ["descricao"],
+    obrigatorios: ["descricao"],
     consulta: "SELECT id, descricao, quantidade FROM blocos ORDER BY descricao"
   },
   apartamentos: {
@@ -207,6 +207,5 @@ app.delete("/api/:recurso/:id", (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor rodando em http://localhost:3000");
 });
-
 
 
